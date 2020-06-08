@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         bLihat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //dilanjut besok
+                startActivity(LihatBarang.getActIntent(MainActivity.this));
             }
         });
     }
