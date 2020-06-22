@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -35,19 +36,67 @@ public class TambahData extends AppCompatActivity {
         //mengambil referensi dari firebase database
         database = FirebaseDatabase.getInstance().getReference();
 
-        btSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!(etKode.getText().toString().isEmpty()) && !(etNama.getText().toString().isEmpty()))
-                    submitBrg(new Barang(etKode.getText().toString(), etNama.getText().toString()));
-                    else
-                    Toast.makeText(getApplicationContext(), "Data tidak kosong", Toast.LENGTH_LONG).show();
+        final Barang barang = (Barang) getIntent().getSerializableExtra("data");
 
-                InputMethodManager imm = (InputMethodManager)
-                        getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(etKode.getWindowToken(), 0);
-            }
-        });
+        if (barang != null) {
+            etNama.setText(barang.getNama());
+            etKode.setText(barang.getKode());
+            btSubmit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    barang.setNama(etNama.getText().toString());
+                    barang.setKode(etKode.getText().toString());
+
+                    updateBarang(barang);
+                }
+            });
+        } else {
+
+            btSubmit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (!(etKode.getText().toString().isEmpty()) && !(etNama.getText().toString().isEmpty()))
+                        submitBrg(new Barang(etKode.getText().toString(), etNama.getText().toString()));
+                    else
+                        Toast.makeText(getApplicationContext(), "Data tidak kosong", Toast.LENGTH_LONG).show();
+
+                    InputMethodManager imm = (InputMethodManager)
+                            getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(etKode.getWindowToken(), 0);
+                }
+            });
+        }
+    }
+
+    private boolean isEmpty(String s){
+        // Cek apakah ada fields yang kosong, sebelum disubmit
+        return TextUtils.isEmpty(s);
+    }
+
+    private void updateBarang(Barang barang) {
+        /**-
+         * Baris kode yang digunakan untuk mengupdate data barang
+         * yang sudah dimasukkan di Firebase Realtime Database
+         */
+        database.child("Barang") //akses parent index, ibaratnya seperti nama tabel
+                .child(barang.getKode()) //select barang berdasarkan key
+                .setValue(barang) //set value barang yang baru
+                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                        /**
+                         * Baris kode yang akan dipanggil apabila proses update barang sukses
+                         */
+                        Toast.makeText(getApplicationContext(), "Data berhasil diupdatekan", Toast.LENGTH_LONG).show();
+//                                setAction("Oke", new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View view) {
+//                                finish();
+//                            }
+//                        }).show();
+                    }
+                });
     }
 
     public void submitBrg(Barang brg){

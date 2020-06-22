@@ -8,5 +8,7 @@
     <string name="txtJudull1">ACTIVITAS</string>
     <string name="txtJudull2">Penambahan Data</string>
     <string name="txtJudull3">Data Barang</string>
+    <string name="btnDel">Delete</string>
+    <string name="btnUp">Update</string>
     <string name="txtKosong"></string>
 </resources>
